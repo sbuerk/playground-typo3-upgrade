@@ -4,29 +4,26 @@
 <f:layout name="Default" />
 
 <f:section name="Main">
-    <h1>{f:translate(key: 'LLL:EXT:flight_ops/Resources/Private/Language/locallang.xlf:board.title')}</h1>
+    <h1><f:translate key="LLL:EXT:flight_ops/Resources/Private/Language/locallang.xlf:board.title" /></h1>
 
     <f:if condition="{departures}">
         <f:then>
             <table class="flight-board">
                 <f:for each="{departures}" as="departure">
-                    <tr>
-                        <td>{departure.flightNumber}</td>
-                        <td>{departure.destination}</td>
-                        <td><f:format.date format="H:i">{departure.scheduled}</f:format.date></td>
-                        <td>{departure.remark -> f:format.html()}</td>
+                    <tr class="flight-board__row">
+                        <td class="flight-number">{departure.flight_number}</td>
+                        <td class="destination">{departure.destination}</td>
+                        <td class="seats">{departure.seats}</td>
                     </tr>
                 </f:for>
             </table>
         </f:then>
         <f:else>
-            <p><f:translate key="board.empty" extensionName="FlightOps" /></p>
+            <p class="flight-board__empty">
+                <f:translate key="LLL:EXT:flight_ops/Resources/Private/Language/locallang.xlf:board.empty" />
+            </p>
         </f:else>
     </f:if>
-
-    <f:link.action action="detail" arguments="{gate: gates}" absolute="1">
-        <f:translate key="board.details" />
-    </f:link.action>
 </f:section>
 
 </html>

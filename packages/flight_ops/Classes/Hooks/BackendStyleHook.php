@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Webvision\FlightOps\Hooks;
 
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -16,6 +17,11 @@ final class BackendStyleHook
     {
         $GLOBALS['TBE_STYLES']['stylesheet'] = 'EXT:flight_ops/Resources/Public/Css/airline.css';
         $GLOBALS['TBE_STYLES']['stylesheet2'] = 'EXT:flight_ops/Resources/Public/Css/airline-print.css';
+    }
+
+    public function collectUpdateSignals(): string
+    {
+        return (string)BackendUtility::getUpdateSignalCode();
     }
 
     public function resolvePageType(TypoScriptFrontendController $frontendController): int

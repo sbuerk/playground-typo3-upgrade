@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Webvision\FlightOps\Controller;
 
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -26,7 +25,7 @@ final class FlightController extends ActionController
 
         $message = GeneralUtility::makeInstance(
             FlashMessage::class,
-            LocalizationUtility::translate('flight.delayed', 'flight_ops', [], 'de'),
+            (string)LocalizationUtility::translate('flight.delayed', 'flight_ops', [], 'de'),
             'Flight delayed',
             FlashMessage::WARNING,
             true
@@ -36,7 +35,6 @@ final class FlightController extends ActionController
             'gates' => $requestedGates,
             'message' => $message,
             'departures' => $this->boardingService->findDepartures(),
-            'signal' => BackendUtility::getUpdateSignalCode(),
             'installPath' => TYPO3_mainDir,
         ]);
 

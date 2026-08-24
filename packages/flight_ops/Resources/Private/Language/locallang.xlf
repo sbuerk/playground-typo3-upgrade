@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2026-08-25T00:00:00Z" product-name="flight_ops">
+        <header/>
+        <body>
+            <trans-unit id="board.title">
+                <source>Departures</source>
+            </trans-unit>
+            <trans-unit id="board.empty">
+                <source>No departures scheduled.</source>
+            </trans-unit>
+            <trans-unit id="board.details">
+                <source>Gate details</source>
+            </trans-unit>
+            <trans-unit id="flight.delayed">
+                <source>This flight is delayed.</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
