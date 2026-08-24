@@ -8,7 +8,7 @@ repository (TYPO3 12.4.45 → 13.4.34, PHP 8.2).
 ## Lab 00
 
 Unit: `OK (5 tests, 22 assertions)`.
-Functional: `OK, but there were issues!` — `Tests: 5, Assertions: 6, Deprecations: 2`, exit code **1**.
+Functional: `OK, but there were issues!` — `Tests: 8, Assertions: 11, Deprecations: 4`, exit code **1**.
 
 1. `Build/phpunit/FunctionalTests.xml` sets `failOnDeprecation="true"` — the same
    setting the TYPO3 Core uses for its own suites. Any `E_USER_DEPRECATED` raised
@@ -160,32 +160,78 @@ lesson, different package: move the tools in the same transaction, or install
 them in their own `tools/` directory so they can never veto production
 dependencies again.
 
+## Lab 07
+
+Rector changes **6 files**. The interesting one is `ext_localconf.php`:
+
+```diff
+     [\Webvision\FlightOps\Controller\FlightController::class => 'list'],
+-    []
++    [],
++    \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
+```
+
+3. The plugin moves from a `list_type` subtype to a real `CType`. Every existing
+   `tt_content` row still says `CType=list, list_type=flightops_board` — so after
+   this change the plugin matches nothing and renders nothing. The code is
+   correct and the site is broken.
+4. Rector generates `Classes/Updates/WebvisionFlightOpsCTypeMigration.php`, an
+   upgrade wizard extending `AbstractListTypeToCTypeUpdate`, containing:
+
+   ```php
+   return [
+       // TODO: Add this mapping yourself!
+   ];
+   ```
+
+   Ship it unfinished and `typo3 upgrade:list` throws:
+   *"does not provide a 'list_type' to 'CType' migration mapping"*. Fill it in:
+
+   ```php
+   return ['flightops_board' => 'flightops_board'];
+   ```
+5. `FlightBoardTest` — with
+   `TypoScript object path "tt_content.list.20.flightops_board" does not exist`.
+   It is the only test that renders the plugin, so it is the only one that can
+   see that the plugin is no longer wired to anything. Rector also fixes the TCA
+   here: 9 of the 10 TCA migrations have rector rules, leaving only
+   `t3editor` → `codeEditor`.
+
 ## Lab 08
 
-The full sequence, measured on this project — the same five tests throughout:
+The full sequence, measured on this project — the same eight tests throughout:
 
-| Stage                                | Result                                          | Exit |
-|--------------------------------------|-------------------------------------------------|------|
-| 12.4, before departure               | 5 tests · 6 assertions · **2 deprecations**     | 1    |
-| 13.4, straight after the bump        | 5 tests · 2 assertions · **3 errors** · 1 depr. | 2    |
-| 13.4, after Rector + Fractor         | 5 tests · 6 assertions · **1 deprecation**      | 1    |
-| 13.4, after fixing the TCA by hand   | **OK — 5 tests · 6 assertions**                 | 0    |
+| Stage                            | Functional suite                                | Exit |
+|----------------------------------|-------------------------------------------------|------|
+| 12.4, before departure           | 8 tests · 11 assertions · **4 deprecations**    | 1    |
+| 13.4, straight after the bump    | 8 tests · 2 assertions · **6 errors** · 4 depr. | 2    |
+| 13.4, after Rector and Fractor   | 8 tests · 6 assertions · **3 errors** · 1 depr. | 2    |
+| 13.4, after the hand work        | **OK — 8 tests · 11 assertions**                | 0    |
 
-1. **Errors** (3): `Call to undefined method QueryBuilder::execute()` in
-   `BoardingService::findDepartures()`, hit by three tests. Removed API — the code
-   cannot run at all. **Deprecation** (1): the TCA auto-migration. Still works,
-   scheduled for removal, and it is what keeps the build red after rector.
-2. Rector fixed **all three errors** by itself (`MigrateQueryBuilderExecuteRector`,
-   plus the FlashMessage and lastTypoLinkUrl migrations). It cannot fix the TCA —
-   that is Lab 03's hand work, and it is the last thing standing between you and
-   a green build.
-3. The scanner reports **11** findings on 13.4 (6 strong, 5 weak) against 13 on
-   12.4. Three were cleared by rector, and one new strong finding appeared:
-   `TypoScriptFrontendController` (`Deprecation-105230`) — a v13 entry the v12
-   scanner could not have known about.
-4. Two problems were surfaced by the tests and by nothing else in the pre-flight
-   phase: `QueryBuilder::execute()` (no scanner rule exists) and the TCA migration
-   (backend-only, no CLI). Both were in the very first test run, in Lab 00.
+The six errors after the bump: three × `Call to undefined method
+QueryBuilder::execute()` (BoardingServiceTest) and three × `Undefined constant
+FlashMessage::WARNING` (FlightBoardTest).
+
+1. **Errors** cannot run at all — fix now. **Deprecations** still work — schedule
+   them, but before the next major, not "sometime".
+2. Rector fixed `QueryBuilder::execute()`, `FlashMessage::WARNING` and
+   `lastTypoLinkUrl`. It could not fix:
+   - **`TYPO3_mainDir`** — a removed global constant. There is no mechanical
+     replacement; you have to decide what the code actually wanted.
+   - **`t3editor` → `codeEditor`** — the one TCA migration with no rector rule.
+   - **the orphaned content records** — a data problem, not a code problem.
+3. The third one. See Lab 07.
+4. `CType=list, list_type=flightops_board` becomes `CType=flightops_board`. The
+   production equivalent is the upgrade wizard you completed in Lab 07 — run
+   against real data in Lab 09. Fixtures are content records; they need the same
+   migration your editors' content needs.
+5. **10 findings (5 strong, 5 weak)** on 13.4, against 13 on 12.4. And the v13
+   scanner reports `TypoScriptFrontendController` (`Deprecation-105230`), which
+   the v12 scanner could not have known about.
+6. Four, in this project: `QueryBuilder::execute()` (no scanner rule), the TCA
+   migration (backend-only, no CLI), the `list_type` registration deprecation
+   (only visible when the plugin is actually rendered), and the orphaned content
+   records (invisible to every static tool that exists).
 
 ## Lab 09
 
@@ -193,7 +239,10 @@ The full sequence, measured on this project — the same five tests throughout:
    schema there. Command surfaces change between majors, so an upgrade script
    written for the old version does not necessarily run on the new one. Check
    your deployment scripts as part of the upgrade, not after it.
-2. Wizards only appear when they have data to migrate. This instance is nearly
+2. `webvisionFlightOpsCTypeMigration` — your own wizard from Lab 07. It rewrites
+   `tt_content` rows from `list_type` to the new `CType` and fixes backend user
+   permissions. That is the production counterpart of the fixture edit in Lab 08.
+3. The rest only appear when they have data to migrate. This instance is nearly
    empty, so most report nothing. On a copy of production data the list is
    longer — which is why you rehearse there.
 3. The schema change. Before it: a branch and a lock file. After it: a restore.

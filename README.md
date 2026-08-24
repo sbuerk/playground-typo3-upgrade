@@ -106,27 +106,36 @@ That is the whole argument for coverage in one command.
 The whole workshop in one table. Same five tests, four moments — every number
 here was measured on this project, not estimated:
 
-| Stage                              | Result                                          | Exit |
-|------------------------------------|-------------------------------------------------|------|
-| 12.4, before departure             | 5 tests · 6 assertions · **2 deprecations**     | 1    |
-| 13.4, straight after the bump      | 5 tests · 2 assertions · **3 errors** · 1 depr. | 2    |
-| 13.4, after Rector + Fractor       | 5 tests · 6 assertions · **1 deprecation**      | 1    |
-| 13.4, after fixing the TCA by hand | **OK — 5 tests · 6 assertions**                 | 0    |
+| Stage                            | Functional suite                                | Exit |
+|----------------------------------|-------------------------------------------------|------|
+| 12.4, before departure           | 8 tests · 11 assertions · **4 deprecations**    | 1    |
+| 13.4, straight after the bump    | 8 tests · 2 assertions · **6 errors** · 4 depr. | 2    |
+| 13.4, after Rector + Fractor     | 8 tests · 6 assertions · **3 errors** · 1 depr. | 2    |
+| 13.4, after the hand work        | **OK — 8 tests · 11 assertions**                | 0    |
 
 Read it top to bottom and the argument makes itself:
 
-- On **12.4** the suite already names what v13 will remove. That is preparation,
-  for free, before anyone opens a changelog.
-- On **13.4** the same deprecation has become three hard errors, with file and
-  line. Today's deprecation really is tomorrow's breaking change — and your
-  tests are where you watch it happen.
-- **Rector** clears the mechanical part. It does not clear everything.
-- The **last red** is the TCA, which no refactoring tool can fix. That is your
-  hand work, and the suite refuses to go green until you do it.
+- On **12.4** the suite already names four things v13 changes. That is
+  preparation, for free, before anyone opens a changelog.
+- On **13.4** those deprecations have become six hard errors, with file and line.
+  Today's deprecation really is tomorrow's breaking change — and your tests are
+  where you watch it happen.
+- **Rector** clears the mechanical half and then does something more interesting:
+  it migrates the plugin registration and **silently orphans every existing
+  content record**, scaffolding an upgrade wizard with a `// TODO` in it. The
+  only thing that notices is the test that renders the plugin.
+- The **last red** is hand work: a removed constant, one TCA migration rector has
+  no rule for, and a data migration. The suite refuses to go green until all
+  three are done.
 
-Two of these problems are reported by **no other tool** in the pre-flight phase:
-`QueryBuilder::execute()` has no Extension Scanner rule, and the TCA migration
-check is backend-only with no CLI. Coverage found both in Lab 00.
+Four of these problems are reported by **no other tool** in the pre-flight phase:
+`QueryBuilder::execute()` (no Extension Scanner rule), the TCA migration
+(backend-only, no CLI), the `list_type` registration deprecation (only visible
+when the plugin actually renders), and the orphaned content records (invisible to
+every static tool that exists).
+
+The single most useful experiment in this repo: comment out `FlightBoardTest`,
+run Lab 00 again, and watch the number of reported problems halve.
 
 ---
 

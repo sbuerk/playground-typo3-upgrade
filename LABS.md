@@ -21,16 +21,19 @@ ddev exec ./vendor/bin/typo3 extension:setup
 ```
 
 **Expected:** unit green, functional "OK, but there were issues!", exit code 1,
-two deprecations.
+**four** deprecations.
 
 ### Questions
 
 1. Every assertion passed. Why did the suite still fail?
 2. Look up `failOnDeprecation` in `Build/phpunit/FunctionalTests.xml`. Would you
    turn it off? Argue both sides, then decide.
-3. Both deprecations name something that disappears in v13. Write them down —
-   this is the first page of your upgrade plan, and you produced it in one
-   command without reading a single changelog.
+3. All four name something that changes in v13. Write them down — this is the
+   first page of your upgrade plan, and you produced it in one command without
+   reading a single changelog.
+4. Three of the four are only reported because `FlightBoardTest` renders the
+   plugin through a real frontend request. Comment that test class out and run
+   again: you are down to two. **That difference is what coverage buys you.**
 
 > **The point:** a test suite is not there to prove your code is correct. During
 > an upgrade it is there to *execute* your code so the core can tell you what is
@@ -213,7 +216,7 @@ ddev composer update -W
 
 ## Lab 07 · Rector and Fractor, for real
 
-**Phase: Flight  ·  ~20 min**
+**Phase: Flight  ·  ~25 min**
 
 Now that the new core is on disk:
 
@@ -228,36 +231,61 @@ git diff
 1. Read **every** hunk before you commit. Anything you would not have written
    yourself?
 2. Rector output is unformatted. What do you run next?
-3. Commit in slices, not as one blob. Why?
+3. Look at `ext_localconf.php`. Rector changed how the plugin is registered.
+   What exactly did it change, and what does that mean for the `tt_content`
+   records that already exist in a real database?
+4. Rector also created a **new file** you did not ask for. Find it. Open it.
+   It contains a `// TODO`. What is it asking you to do, and what happens if you
+   ship without doing it?
+5. Now run the tests. Something that passed before the refactoring now fails.
+   Which test, and why is it the *only* one that could have noticed?
 
----
+> **The point:** rector's change was correct. It was also incomplete, and it
+> silently invalidated every existing content record using that plugin. Code
+> migration and data migration are two different jobs — and only a test that
+> renders the plugin tells you the second one is missing.
 
 ## Lab 08 · Get the pipeline green
 
-**Phase: Flight  ·  ~30 min**
+**Phase: Flight  ·  ~40 min**
 
 ```bash
 ./Build/Scripts/runTests.sh -s tests
 ```
 
-Work the failures until both suites are green on 13.4.
+Work the failures until both suites are green on 13.4. You will go through
+roughly this sequence — track your own numbers as you go:
+
+| Stage                            | Functional suite                                | Exit |
+|----------------------------------|-------------------------------------------------|------|
+| 12.4, before departure           | 8 tests · 11 assertions · 4 deprecations        | 1    |
+| 13.4, straight after the bump    | 8 tests · 2 assertions · **6 errors** · 4 depr. | 2    |
+| 13.4, after Rector and Fractor   | 8 tests · 6 assertions · **3 errors** · 1 depr. | 2    |
+| 13.4, after the hand work        | **OK — 8 tests · 11 assertions**                | 0    |
 
 ### Questions
 
-1. Which failures were **fatal errors** (removed API), and which were
-   **deprecations** (still working, but scheduled)? Two different urgencies.
-2. Which of them did rector fix for you, and which needed hands?
-3. Re-run the Extension Scanner now. The numbers changed — and there is a
-   finding that did not exist before. Which, and why?
-4. Count it up: how many problems did the *tests* catch that no other tool
-   reported?
+1. Which failures were **errors** (removed API — the code cannot run) and which
+   were **deprecations** (still working, but scheduled)? Two different urgencies,
+   and you should treat them differently.
+2. Rector cleared three of the six errors. Name the three it could not, and say
+   for each one *why* a refactoring tool cannot fix it.
+3. One of the remaining failures is not a code problem at all — it is a **data**
+   problem. Which one? (See Lab 07, question 3.)
+4. Your test fixtures are content records too. What did you have to do to
+   `Tests/Functional/Fixtures/tt_content.csv`, and what is the production
+   equivalent of that edit?
+5. Re-run the Extension Scanner. It reported 13 findings on 12.4. What does it
+   report now, and does the difference match what you actually fixed?
+6. **Count it up.** How many of the problems you fixed today were reported by
+   the tests and by nothing else in the pre-flight phase?
 
 > **The point:** this is the lab the whole workshop is built around. With
 > coverage, an upgrade is a list of red tests that you turn green one at a time,
-> and you always know how far you are. Without coverage, it is clicking around
-> the site hoping you thought of everything.
-
----
+> and you always know how far along you are. Without coverage, it is clicking
+> around the site hoping you thought of everything — and the plugin that silently
+> stopped rendering is the thing you find out about from an editor, three weeks
+> later.
 
 ## Lab 09 · Wizards, schema, caches
 
@@ -276,9 +304,10 @@ Then open the backend and the frontend and actually look at them.
 
 1. `database:updateschema` did not exist in 12.4. What did you use instead in
    Lab 00, and what does that tell you about scripting an upgrade?
-2. Open *Upgrade Wizard* in the backend. Why is the list shorter than you
-   expected on this instance?
-3. Which of these steps is your V1 — the point after which "undo" means
+2. Open *Upgrade Wizard* in the backend. Your own wizard from Lab 07 should be
+   in the list now. Run it. What did it change in the database?
+3. Why is the rest of the list shorter than you expected on this instance?
+4. Which of these steps is your V1 — the point after which "undo" means
    "restore the backup"?
 
 ---
