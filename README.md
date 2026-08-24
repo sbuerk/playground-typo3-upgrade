@@ -101,6 +101,35 @@ That is the whole argument for coverage in one command.
 
 ---
 
+## What the pipeline does for you
+
+The whole workshop in one table. Same five tests, four moments — every number
+here was measured on this project, not estimated:
+
+| Stage                              | Result                                          | Exit |
+|------------------------------------|-------------------------------------------------|------|
+| 12.4, before departure             | 5 tests · 6 assertions · **2 deprecations**     | 1    |
+| 13.4, straight after the bump      | 5 tests · 2 assertions · **3 errors** · 1 depr. | 2    |
+| 13.4, after Rector + Fractor       | 5 tests · 6 assertions · **1 deprecation**      | 1    |
+| 13.4, after fixing the TCA by hand | **OK — 5 tests · 6 assertions**                 | 0    |
+
+Read it top to bottom and the argument makes itself:
+
+- On **12.4** the suite already names what v13 will remove. That is preparation,
+  for free, before anyone opens a changelog.
+- On **13.4** the same deprecation has become three hard errors, with file and
+  line. Today's deprecation really is tomorrow's breaking change — and your
+  tests are where you watch it happen.
+- **Rector** clears the mechanical part. It does not clear everything.
+- The **last red** is the TCA, which no refactoring tool can fix. That is your
+  hand work, and the suite refuses to go green until you do it.
+
+Two of these problems are reported by **no other tool** in the pre-flight phase:
+`QueryBuilder::execute()` has no Extension Scanner rule, and the TCA migration
+check is backend-only with no CLI. Coverage found both in Lab 00.
+
+---
+
 ## The labs
 
 See **[LABS.md](LABS.md)**. Short version:

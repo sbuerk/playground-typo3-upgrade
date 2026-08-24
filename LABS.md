@@ -182,23 +182,34 @@ git checkout -b upgrade/v13
 git add -A && git commit -m "Pre-flight complete"
 ```
 
-Now raise the core to 13.4. Edit `composer.json`, then:
+Now raise the core to 13.4. Do it by **editing `composer.json`** — do not reach
+for `composer require`:
 
 ```bash
+# raise every typo3/cms-* constraint in composer.json from ^12.4 to ^13.4
 ddev composer update -W
 ```
 
-**Expected: it fails.** Read the error properly before you do anything else.
+**Expected: it fails.** Read the error properly before you change anything else.
 
 ### Questions
 
-1. What is actually blocking the upgrade? It is not TYPO3.
-2. Why does a *development* dependency get to veto a *production* upgrade?
-3. Fix it. There are two legitimate answers — one quick, one structural.
-4. `typo3/testing-framework` also needs to move. Which major, and how did you
-   decide?
+1. What is blocking it? It is not TYPO3, and it is not a third-party extension.
+   (Look at the package name in "Problem 1".)
+2. Fix that, then run `ddev composer update -W` again. Does it get further?
+3. `typo3/testing-framework` also has to move. Which major, and how did you find
+   out? (Its README has the version matrix. This is the "read the extension's own
+   upgrade instructions" moment.)
+4. Now try the other way round on a scratch branch:
+   `ddev composer require "typo3/cms-core:^13.4" -W`. It fails differently.
+   Why is editing `composer.json` + `update -W` the reliable route for a major
+   bump, and `require` not?
+5. Once you are on 13.4, check what moved that you did not ask for:
+   `git diff composer.lock | grep -c '"name"'`.
 
----
+> **The point:** your dependency graph is one graph. Your own extensions and your
+> dev tooling are in it, and either can veto a production upgrade. That is an
+> argument for keeping tools in an isolated install — and for `-W`.
 
 ## Lab 07 · Rector and Fractor, for real
 

@@ -120,52 +120,72 @@ Rector: **4 files**, rules `RenameClassConstFetchRector`,
 
 ## Lab 06
 
-The failure:
+The first failure:
 
 ```
 Problem 1
-  - Root composer.json requires typo3/cms-install ^13.4 …
-  - typo3/cms-install[v13.4.10, …] require nikic/php-parser ^5.4.0
-    -> found nikic/php-parser[v5.4.0, …] but these were not loaded,
-       likely because it conflicts with another require.
+  - Root composer.json requires webvision/flight-ops @dev
+  - webvision/flight-ops require typo3/cms-core ^12.4 -> found
+    typo3/cms-core[v12.4.0, ..., v12.4.45] but it conflicts with your root
+    composer.json require (^13.4).
 ```
 
-1. `ssch/typo3-rector` pins `nikic/php-parser` in `require-dev`.
-2. Because composer resolves one graph for the whole project — `require-dev` is
-   part of it.
-3. Quick: update the tools in the same transaction (`ddev composer update -W`
-   with the tool constraints raised). Structural: move dev tooling into its own
-   `tools/` install (e.g. `bamarni/composer-bin-plugin`) so it can never veto a
-   production dependency again.
-4. `typo3/testing-framework` **^9** for TYPO3 13.4 (^8 is the 12.4 line). The
-   version matrix is in its README — this is a "read the extension's own upgrade
-   instructions" moment.
+1. **Your own extension.** `packages/flight_ops/composer.json` still requires
+   `typo3/cms-core: ^12.4`. Local path packages are part of the same dependency
+   graph as everything else — raise it to `^13.4` there too.
+2. Yes. With both constraints raised, `ddev composer update -W` resolves and
+   installs **13.4.34**.
+3. `typo3/testing-framework` **^9** for 13.4 (^8 is the 12.4 line).
+4. `composer require typo3/cms-core:^13.4 -W` fails differently: it reports the
+   remaining `typo3/cms-*` packages as *"locked to version v12.4.45 and an update
+   of this package was not requested"*, and it also trips the advisory block.
+   `require` changes one constraint and tries to keep the rest of the lock;
+   a major core bump moves twenty-five packages at once. Edit the constraints,
+   then `update -W`.
+5. In this project roughly 60 packages move — including doctrine/dbal 3 → 4.
+   That is the real blast radius of a "one line" version bump.
 
----
+**The dev-tooling variant.** On a project where the refactoring tools are pinned
+harder in the lock, the same bump fails on them instead — the sibling demo for
+this talk hit:
+
+```
+- typo3/cms-install[v13.4.10, ...] require nikic/php-parser ^5.4.0
+  -> found nikic/php-parser[v5.4.0, ...] but these were not loaded,
+     likely because it conflicts with another require.
+```
+
+…because `ssch/typo3-rector` pinned `nikic/php-parser` in `require-dev`. Same
+lesson, different package: move the tools in the same transaction, or install
+them in their own `tools/` directory so they can never veto production
+dependencies again.
 
 ## Lab 08
 
-Failures fall into two groups:
+The full sequence, measured on this project — the same five tests throughout:
 
-**Fatal (removed API)** — the test errors, not fails:
-- `QueryBuilder::execute()` gone → `Call to undefined method`
-- `ContentObjectRenderer->lastTypoLinkUrl` gone
-- `FlashMessage::WARNING` gone → `ContextualFeedbackSeverity::WARNING`
+| Stage                                | Result                                          | Exit |
+|--------------------------------------|-------------------------------------------------|------|
+| 12.4, before departure               | 5 tests · 6 assertions · **2 deprecations**     | 1    |
+| 13.4, straight after the bump        | 5 tests · 2 assertions · **3 errors** · 1 depr. | 2    |
+| 13.4, after Rector + Fractor         | 5 tests · 6 assertions · **1 deprecation**      | 1    |
+| 13.4, after fixing the TCA by hand   | **OK — 5 tests · 6 assertions**                 | 0    |
 
-**Deprecation (still works, scheduled)** — the assertion passes, the suite fails:
-- TCA auto-migration (if you did not finish Lab 03)
-- `TypoScriptFrontendController` itself, new in 13 (`Deprecation-105230`)
-
-3. The scanner reports **11** findings on 13.4 (6 strong, 5 weak) where it
-   reported 13 on 12.4 — rector cleared three, and one *new* strong finding
-   appeared: `TypoScriptFrontendController`, a v13 deprecation the v12 scanner
-   could not have known about.
-4. Two problems were found by the tests and by nothing else in the pre-flight
-   phase: `QueryBuilder::execute()` (no scanner rule) and the TCA migration
-   (no CLI, backend-only). Both were in the test output in **Lab 00**, before
-   anyone opened a changelog.
-
----
+1. **Errors** (3): `Call to undefined method QueryBuilder::execute()` in
+   `BoardingService::findDepartures()`, hit by three tests. Removed API — the code
+   cannot run at all. **Deprecation** (1): the TCA auto-migration. Still works,
+   scheduled for removal, and it is what keeps the build red after rector.
+2. Rector fixed **all three errors** by itself (`MigrateQueryBuilderExecuteRector`,
+   plus the FlashMessage and lastTypoLinkUrl migrations). It cannot fix the TCA —
+   that is Lab 03's hand work, and it is the last thing standing between you and
+   a green build.
+3. The scanner reports **11** findings on 13.4 (6 strong, 5 weak) against 13 on
+   12.4. Three were cleared by rector, and one new strong finding appeared:
+   `TypoScriptFrontendController` (`Deprecation-105230`) — a v13 entry the v12
+   scanner could not have known about.
+4. Two problems were surfaced by the tests and by nothing else in the pre-flight
+   phase: `QueryBuilder::execute()` (no scanner rule exists) and the TCA migration
+   (backend-only, no CLI). Both were in the very first test run, in Lab 00.
 
 ## Lab 09
 
