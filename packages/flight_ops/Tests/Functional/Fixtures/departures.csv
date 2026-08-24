@@ -1,0 +1,4 @@
+"tx_flightops_domain_model_departure",,,,,
+,"uid","pid","flight_number","destination","seats"
+,1,1,"LH123","Munich",180
+,2,1,"OS456","Vienna",96

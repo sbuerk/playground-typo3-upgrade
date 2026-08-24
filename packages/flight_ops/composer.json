@@ -1,0 +1,21 @@
+{
+    "name": "webvision/flight-ops",
+    "type": "typo3-cms-extension",
+    "description": "Flight operations planning for TYPO3",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "typo3/cms-core": "^12.4",
+        "typo3/cms-extbase": "^12.4",
+        "typo3/cms-fluid": "^12.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Webvision\\FlightOps\\": "Classes/"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "flight_ops"
+        }
+    }
+}

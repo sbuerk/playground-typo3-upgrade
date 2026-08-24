@@ -1,0 +1,21 @@
+<INCLUDE_TYPOSCRIPT: source="FILE:EXT:flight_ops/Configuration/TypoScript/Plugin/Board.typoscript">
+<INCLUDE_TYPOSCRIPT: source="DIR:EXT:flight_ops/Configuration/TypoScript/Partials" extensions="typoscript">
+
+plugin.tx_flightops {
+    view {
+        templateRootPaths.0 = EXT:flight_ops/Resources/Private/Templates/
+        partialRootPaths.0 = EXT:flight_ops/Resources/Private/Partials/
+    }
+    settings {
+        gates = 1,2,3,4
+        showDelayed = 1
+    }
+}
+
+[globalVar = TSFE:id = 42]
+    plugin.tx_flightops.settings.showDelayed = 0
+[end]
+
+[globalVar = GP:type = 98]
+    config.disableAllHeaderCode = 1
+[global]

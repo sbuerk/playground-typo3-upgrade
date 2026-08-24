@@ -1,0 +1,55 @@
+# TYPO3 upgrade workshop - the pipeline that keeps the aircraft clean.
+#
+# The point of this file: new deprecated API never gets merged, so the NEXT
+# upgrade starts from zero instead of from archaeology.
+
+stages: [qa]
+
+default:
+  image: ghcr.io/typo3/core-testing-php82:latest
+
+variables:
+  MYSQL_ROOT_PASSWORD: root
+  typo3DatabaseDriver: pdo_mysql
+  typo3DatabaseName: funcdb
+  typo3DatabaseUsername: root
+  typo3DatabasePassword: root
+  typo3DatabaseHost: mariadb
+  TYPO3_PATH_ROOT: $CI_PROJECT_DIR/public
+  TYPO3_PATH_APP: $CI_PROJECT_DIR
+
+.composer: &composer
+  before_script:
+    - composer install --no-progress --no-interaction
+
+unit:
+  stage: qa
+  <<: *composer
+  script:
+    - php vendor/bin/phpunit -c Build/phpunit/UnitTests.xml
+
+functional:
+  stage: qa
+  <<: *composer
+  services: ["mariadb:10.11"]
+  script:
+    - php vendor/bin/phpunit -c Build/phpunit/FunctionalTests.xml
+
+extension-scanner:
+  stage: qa
+  <<: *composer
+  script:
+    # non-zero exit on strong matches; weak matches are reported, not enforced
+    - ./vendor/bin/typo3 extension:scan flight_ops --no-progress
+    - ./vendor/bin/typo3 extension:scan flight_ops --format=checkstyle --no-progress > scan.xml
+  artifacts:
+    when: always
+    reports:
+      codequality: scan.xml
+
+rector-dry-run:
+  stage: qa
+  <<: *composer
+  allow_failure: true          # advisory: shows drift, does not block the merge
+  script:
+    - ./vendor/bin/rector process --dry-run

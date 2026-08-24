@@ -1,0 +1,6 @@
+tt_content.list.20.flightops_board = USER
+tt_content.list.20.flightops_board {
+    userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
+    extensionName = FlightOps
+    pluginName = Board
+}

@@ -1,0 +1,10 @@
+/vendor/
+/public/index.php
+/public/typo3/
+/public/typo3conf/ext/
+/public/fileadmin/_processed_/
+/public/_assets/
+/var/
+/.ddev/.*
+/config/system/settings.php
+/public/typo3temp/var/

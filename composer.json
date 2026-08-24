@@ -1,0 +1,66 @@
+{
+    "name": "webvision/typo3-upgrade-workshop",
+    "description": "Hands-on training project: fly a TYPO3 12 LTS -> 13 LTS upgrade",
+    "license": "GPL-2.0-or-later",
+    "type": "project",
+    "config": {
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true,
+            "a9f/fractor-extension-installer": true
+        },
+        "platform": {
+            "php": "8.2.31"
+        },
+        "sort-packages": true
+    },
+    "require": {
+        "typo3/cms-backend": "^12.4",
+        "typo3/cms-belog": "^12.4",
+        "typo3/cms-beuser": "^12.4",
+        "typo3/cms-core": "^12.4",
+        "typo3/cms-dashboard": "^12.4",
+        "typo3/cms-extbase": "^12.4",
+        "typo3/cms-extensionmanager": "^12.4",
+        "typo3/cms-felogin": "^12.4",
+        "typo3/cms-filelist": "^12.4",
+        "typo3/cms-fluid": "^12.4",
+        "typo3/cms-fluid-styled-content": "^12.4",
+        "typo3/cms-form": "^12.4",
+        "typo3/cms-frontend": "^12.4",
+        "typo3/cms-impexp": "^12.4",
+        "typo3/cms-info": "^12.4",
+        "typo3/cms-install": "^12.4",
+        "typo3/cms-reactions": "^12.4",
+        "typo3/cms-rte-ckeditor": "^12.4",
+        "typo3/cms-seo": "^12.4",
+        "typo3/cms-setup": "^12.4",
+        "typo3/cms-sys-note": "^12.4",
+        "typo3/cms-t3editor": "^12.4",
+        "typo3/cms-tstemplate": "^12.4",
+        "typo3/cms-viewpage": "^12.4",
+        "typo3/cms-webhooks": "^12.4",
+        "webvision/flight-ops": "@dev"
+    },
+    "repositories": [
+        {
+            "name": "nr-scanner",
+            "type": "vcs",
+            "url": "https://github.com/netresearch/t3x-nr-extension-scanner-cli"
+        },
+        {
+            "name": "flight_ops",
+            "type": "path",
+            "url": "packages/flight_ops"
+        }
+    ],
+    "require-dev": {
+        "a9f/typo3-fractor": "*",
+        "netresearch/extension-scanner-cli": "@dev",
+        "ssch/typo3-rector": "*",
+        "typo3/testing-framework": "^8.0"
+    },
+    "scripts": {
+        "workshop:setup": "typo3 setup --driver=mysqli --host=db --port=3306 --dbname=db --username=db --password=db --admin-username=admin --admin-user-password='Upgrade.Demo!2024' --admin-email=admin@example.com --project-name='Flight Ops Workshop' --create-site=https://t3upgrade-workshop.ddev.site/ --server-type=other --force --no-interaction"
+    }
+}

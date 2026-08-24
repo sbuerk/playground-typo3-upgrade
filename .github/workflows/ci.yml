@@ -1,0 +1,47 @@
+name: QA
+
+on: [push, pull_request]
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: '8.2' }
+      - run: composer install --no-progress --no-interaction
+      - run: php vendor/bin/phpunit -c Build/phpunit/UnitTests.xml
+
+  functional:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env: { MYSQL_ROOT_PASSWORD: root }
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=5
+    env:
+      typo3DatabaseDriver: pdo_mysql
+      typo3DatabaseName: funcdb
+      typo3DatabaseUsername: root
+      typo3DatabasePassword: root
+      typo3DatabaseHost: 127.0.0.1
+      TYPO3_PATH_ROOT: ${{ github.workspace }}/public
+      TYPO3_PATH_APP: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: '8.2' }
+      - run: composer install --no-progress --no-interaction
+      - run: php vendor/bin/phpunit -c Build/phpunit/FunctionalTests.xml
+
+  extension-scanner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: '8.2' }
+      - run: composer install --no-progress --no-interaction
+      - run: ./vendor/bin/typo3 extension:scan flight_ops --no-progress
