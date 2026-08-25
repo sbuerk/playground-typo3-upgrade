@@ -1,7 +1,8 @@
 # Fly the Upgrade — TYPO3 Upgrade Workshop
 
 A deliberately outdated TYPO3 **12.4 LTS** project with a deliberately outdated
-extension, plus a test suite that is **green on 12.4**.
+extension, plus a test suite that already tells you what 13.4 is going to take
+away.
 
 Your job: get it to **13.4 LTS** with the pipeline green again — using the same
 three phases as the talk.
@@ -16,14 +17,14 @@ three phases as the talk.
 | Path                              | What                                                            |
 |-----------------------------------|-----------------------------------------------------------------|
 | `packages/flight_ops/`            | The extension you will be upgrading                             |
-| `packages/flight_ops/Tests/`      | Unit + functional tests — **green on 12.4**                     |
+| `packages/flight_ops/Tests/`      | Unit, functional and frontend tests — your instrument panel     |
 | `Build/Scripts/runTests.sh`       | One entry point for tests, scanner, rector, fractor             |
 | `Build/phpunit/`                  | PHPUnit configs (`failOnDeprecation="true"`, like the Core)     |
 | `rector.php` / `fractor.php`      | You create these in Lab 04 — deliberately not shipped           |
 | `LABS.md`                         | The exercises                                                   |
 | `SOLUTIONS.md`                    | Spoilers. Read after trying.                                    |
 
-`flight_ops` is small on purpose, but it is broken in **four different ways**,
+`flight_ops` is small on purpose, but it is broken in **five different ways**,
 and each one is found by a different tool:
 
 | Broken thing                                   | Found by                          |
@@ -32,6 +33,7 @@ and each one is found by a different tool:
 | `QueryBuilder->execute()`, `clearCacheOnLoad`   | Rector *only* — no scanner rule   |
 | Legacy TypoScript (`INCLUDE_TYPOSCRIPT`, conditions) | Fractor *only*              |
 | Legacy TCA (auto-migrated, silently)            | TCA migration check + **the tests** |
+| A `list_type` plugin registration               | **Only** a test that renders the plugin |
 
 ---
 
@@ -74,17 +76,23 @@ OK (5 tests, 22 assertions)
 
 --- functional tests ---
 OK, but there were issues!
-Tests: 5, Assertions: 6, Deprecations: 2.
+Tests: 8, Assertions: 11, Deprecations: 4.
 ```
 
 Every assertion passes. The suite still exits **1**.
 
 Because `Build/phpunit/FunctionalTests.xml` sets `failOnDeprecation="true"` — the
-same setting the TYPO3 Core uses — the two deprecations TYPO3 raises at runtime
-become build failures. And those two deprecations are, precisely:
+same setting the TYPO3 Core uses — every deprecation TYPO3 raises at runtime
+becomes a build failure. And those four deprecations are, precisely:
 
-1. the automatic TCA migration TYPO3 performs on every request, and
-2. `QueryBuilder::execute() will be removed in TYPO3 v13.0`.
+1. the automatic TCA migration TYPO3 performs on every request,
+2. `QueryBuilder::execute() will be removed in TYPO3 v13.0`,
+3. the fourth argument of `GeneralUtility::intExplode()`, and
+4. the `FlashMessage::WARNING` severity constant.
+
+Three of the four only show up because one test renders the plugin through a real
+frontend request. Coverage is not an abstraction here — it is the difference
+between two findings and four.
 
 **Your test suite just did your pre-flight scan for you, while you are still on
 12.4.** No scanner, no rector, no changelog reading — the tests executed the code
@@ -103,7 +111,7 @@ That is the whole argument for coverage in one command.
 
 ## What the pipeline does for you
 
-The whole workshop in one table. Same five tests, four moments — every number
+The whole workshop in one table. Same eight tests, four moments — every number
 here was measured on this project, not estimated:
 
 | Stage                            | Functional suite                                | Exit |
@@ -124,7 +132,7 @@ Read it top to bottom and the argument makes itself:
   it migrates the plugin registration and **silently orphans every existing
   content record**, scaffolding an upgrade wizard with a `// TODO` in it. The
   only thing that notices is the test that renders the plugin.
-- The **last red** is hand work: a removed constant, one TCA migration rector has
+- The **last red** is hand work: a removed constant, one TCA migration Rector has
   no rule for, and a data migration. The suite refuses to go green until all
   three are done.
 
@@ -145,11 +153,11 @@ See **[LABS.md](LABS.md)**. Short version:
 
 | Lab | Phase       | Theme                                                  |
 |-----|-------------|--------------------------------------------------------|
-| 00  | —           | Get airborne: install, and get a green baseline        |
+| 00  | —           | Get airborne, and read what the suite already knows   |
 | 01  | Pre-Flight  | Read the NOTAMs — changelogs, and why composer says no |
 | 02  | Pre-Flight  | Extension Scanner: backend, CLI, strong vs weak        |
 | 03  | Pre-Flight  | The silent one: TCA auto-migrations                    |
-| 04  | Pre-Flight  | Reconnaissance: rector and fractor dry runs            |
+| 04  | Pre-Flight  | Reconnaissance: Rector and Fractor dry runs            |
 | 05  | Pre-Flight  | Write the QRH, then Go / No-Go                         |
 | 06  | Flight      | The bump — and the conflict you will hit               |
 | 07  | Flight      | Rector and Fractor for real, *after* the bump          |
@@ -157,7 +165,10 @@ See **[LABS.md](LABS.md)**. Short version:
 | 09  | Flight      | Wizards, schema, caches                                |
 | 10  | Post-Flight | Scan again, deprecation log, debrief                   |
 
-Timing: labs 00–05 are about 90 minutes, 06–09 about 60, lab 10 about 30.
+Timing: labs 00–05 take about 2¼ hours, labs 06–09 about 2 hours, and lab 10
+about half an hour. Comfortably a full day with breaks, or two half-days split
+after lab 05 — which is also the natural break, because that is where the
+preparation ends and the upgrade begins.
 
 ---
 

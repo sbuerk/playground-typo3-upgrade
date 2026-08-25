@@ -1,7 +1,6 @@
 # Solutions
 
-Spoilers. Every number here was produced by actually running the lab on this
-repository (TYPO3 12.4.45 → 13.4.34, PHP 8.2).
+Spoilers. Every number here was produced by running the lab on this repository (TYPO3 12.4.45 → 13.4.34, PHP 8.2).
 
 ---
 
@@ -13,8 +12,8 @@ Functional: `OK, but there were issues!` — `Tests: 8, Assertions: 11, Deprecat
 1. `Build/phpunit/FunctionalTests.xml` sets `failOnDeprecation="true"` — the same
    setting the TYPO3 Core uses for its own suites. Any `E_USER_DEPRECATED` raised
    while the test runs fails the build, regardless of assertions.
-2. Turning it off makes the build green and blinds you to exactly the thing you
-   are preparing for. Keep it on. If the noise is unbearable *today*, cap it per
+2. Turning it off makes the build green and blinds you to the very thing you are
+   preparing for. Keep it on. If the noise is unbearable *today*, cap it per
    test with a baseline — do not switch it off globally.
 3. The two:
    - `TcaFactory.php:176` — "Automatic TCA migration done during bootstrap …
@@ -109,9 +108,9 @@ Rector: **4 files**, rules `RenameClassConstFetchRector`,
 2. `Configuration/TypoScript/setup.typoscript` — `INCLUDE_TYPOSCRIPT` → `@import`
    and the legacy conditions → Symfony expression syntax.
 3. Coverage table (this is the slide "Four tools, four blind spots"):
-   found only by the scanner **10**, only by rector **2**, only by fractor **1**,
+   found only by the scanner **10**, only by Rector **2**, only by Fractor **1**,
    only by the TCA check **9**. Just **3** of the scanner's 13 findings are
-   auto-fixed by rector.
+   auto-fixed by Rector.
 4. The rule sets ship with the tool; the code they must match ships with the new
    core. Refactoring before the bump rewrites your code against the old world,
    and you will do it twice.

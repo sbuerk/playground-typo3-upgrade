@@ -1,7 +1,7 @@
 # Labs
 
-Work through these in order. Each lab says what to do, what you should see, and
-what it is teaching. Commands assume you are in the project root.
+Work through these in order. Each lab tells you what to do, what you should see,
+and what it is teaching. Commands assume you are in the project root.
 
 `SOLUTIONS.md` has the answers — use it after you have tried, or when a lab
 says so explicitly.
@@ -61,7 +61,7 @@ ddev composer update typo3/cms-core --dry-run
    (Hint: one of them costs money, one of them is this workshop.)
 2. Open the changelog viewer in the backend:
    *Admin Tools › Upgrade › View Upgrade Documentation*. Filter to 13.0.
-3. Find the entries behind the two deprecations from Lab 00. Each one has a
+3. Find the entries behind the deprecations from Lab 00. Each one has a
    **Migration** section — that is your instruction, already written for you.
 
 ---
@@ -104,10 +104,10 @@ Open *Admin Tools › Upgrade › **Check TCA Migrations***.
 ### Questions
 
 1. Nothing is broken. The backend works, the frontend works. So what exactly is
-   the problem?
+   the problem here?
 2. Read the deprecation text TYPO3 raises (you saw it in Lab 00). It contains a
    promise. Quote it.
-3. Try to find a CLI command for this check. How long did you look?
+3. Go looking for a CLI command that runs this check. How long did you look before giving up?
 4. Now fix **one** field — `flight_number` — in
    `packages/flight_ops/Configuration/TCA/tx_flightops_domain_model_departure.php`,
    then re-run:
@@ -129,7 +129,7 @@ Open *Admin Tools › Upgrade › **Check TCA Migrations***.
 
 **Phase: Pre-Flight  ·  ~25 min**
 
-Neither `rector.php` nor `fractor.php` exists yet. Create them — target **v13**:
+Neither `rector.php` nor `fractor.php` exists yet. Create them, targeting **v13**:
 
 ```bash
 ddev exec ./vendor/bin/typo3-init          # writes rector.php
@@ -146,8 +146,8 @@ then look — do not write yet:
 
 ### Questions
 
-1. Rector reports something the Extension Scanner never mentioned. What, and why?
-2. Fractor reports a file neither of the other two ever opened. Which one?
+1. Rector reports something the Extension Scanner never mentioned. What is it, and why?
+2. Fractor reports a file neither of the other two has ever opened. Which one?
 3. Build the coverage table for yourself:
 
    | Finding | Scanner | Rector | Fractor | TCA check | Tests |
@@ -155,7 +155,7 @@ then look — do not write yet:
 
    Fill one row per problem in `flight_ops`. How many are found by **exactly
    one** tool?
-4. Why must rector and fractor run *after* the package upgrade, not now?
+4. Why must Rector and Fractor run *after* the package upgrade, not now?
 
 ---
 
