@@ -23,6 +23,7 @@ three phases as the talk.
 | `rector.php` / `fractor.php`      | You create these in Lab 04 — deliberately not shipped           |
 | `LABS.md`                         | The exercises                                                   |
 | `SOLUTIONS.md`                    | Spoilers. Read after trying.                                    |
+| `docs/`                           | The talk slides and the upgrade checklist                       |
 
 `flight_ops` is small on purpose, but it is broken in **five different ways**,
 and each one is found by a different tool:
@@ -34,6 +35,35 @@ and each one is found by a different tool:
 | Legacy TypoScript (`INCLUDE_TYPOSCRIPT`, conditions) | Fractor *only*              |
 | Legacy TCA (auto-migrated, silently)            | TCA migration check + **the tests** |
 | A `list_type` plugin registration               | **Only** a test that renders the plugin |
+
+---
+
+## The talk and the checklist
+
+The slides and the checklist that go with this workshop are in `docs/`.
+
+| File                                | What it is                                                    |
+|-------------------------------------|---------------------------------------------------------------|
+| `fly-the-upgrade-slides.pdf`        | The full talk, 88 slides — the handout version                 |
+| `fly-the-upgrade-slides.html`       | The same talk, self-contained and presentable in a browser     |
+| `fly-the-upgrade-slides.pptx`       | The editable original                                          |
+| `upgrade-flight-checklist.pdf`      | The three-phase checklist, A4, print it and tick it            |
+| `upgrade-flight-checklist.md`       | The same checklist with `- [ ]` boxes, for repos and issues    |
+| `upgrade-flight-checklist.html`     | The same checklist as a page, with the boxes clickable         |
+
+Open the HTML deck straight from disk — no server needed. Presenter keys:
+`→ ␣ N` next · `← P` previous · `Home`/`End` · `O` slide overview · `F` fullscreen
+· `?` help. Deep-link a slide with `#42`.
+
+> **If the PPTX looks wrong, it is the fonts.** It names Barlow, Barlow Condensed
+> and IBM Plex Mono. Without them installed, PowerPoint and LibreOffice substitute
+> a proportional face and every terminal block in the deck loses its alignment.
+> The PDF and the HTML are unaffected — use those if you would rather not install
+> anything.
+
+The checklist is the same one used in the talk, consolidated into one document:
+what to answer before you leave, the order to work in during the upgrade, and what
+to do after landing so the next upgrade starts from a better place.
 
 ---
 

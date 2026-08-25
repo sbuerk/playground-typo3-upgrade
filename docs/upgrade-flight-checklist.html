@@ -1,0 +1,652 @@
+<title>Upgrade Flight Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+
+<style>
+/* ---------- tokens: light is the bare :root ---------- */
+:root{
+  --ground:#F2F5F8; --panel:#FFFFFF; --panel-2:#E9EEF4; --line:#D3DCE6;
+  --ink:#121A23; --ink-2:#44556A; --ink-3:#6A7B90;
+  --pre:#0B7392; --fly:#A85400; --post:#0D7350;
+  --danger:#B32227; --caution:#8A5A00;
+  --shadow:0 1px 2px rgba(18,26,35,.06), 0 8px 24px rgba(18,26,35,.05);
+  --f-display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+  --f-body:"Barlow","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0B1016; --panel:#141C26; --panel-2:#1B2531; --line:#25303E;
+    --ink:#EAF0F6; --ink-2:#A8B6C6; --ink-3:#6F8093;
+    --pre:#4EC3E0; --fly:#FF8700; --post:#3FCF8E;
+    --danger:#E5484D; --caution:#FFB020;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 28px rgba(0,0,0,.28);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0B1016; --panel:#141C26; --panel-2:#1B2531; --line:#25303E;
+  --ink:#EAF0F6; --ink-2:#A8B6C6; --ink-3:#6F8093;
+  --pre:#4EC3E0; --fly:#FF8700; --post:#3FCF8E;
+  --danger:#E5484D; --caution:#FFB020;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 28px rgba(0,0,0,.28);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--ground)}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:var(--f-body); font-size:16.5px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  padding:0 20px 96px;
+}
+.wrap{max-width:900px;margin:0 auto}
+
+/* ---------- masthead ---------- */
+.mast{padding:64px 0 28px;border-bottom:2px solid var(--ink);margin-bottom:40px}
+.mast .kicker{
+  font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:18px}
+.mast h1{
+  font-family:var(--f-display);font-weight:700;font-size:clamp(44px,8vw,76px);
+  line-height:.96;letter-spacing:-.01em;text-wrap:balance}
+.mast .sub{
+  margin-top:14px;font-size:19px;color:var(--ink-2);max-width:62ch;text-wrap:balance}
+
+.lede{display:flex;flex-direction:column;gap:16px;margin-bottom:36px;max-width:66ch}
+.lede p{color:var(--ink-2)}
+.lede strong{color:var(--ink);font-weight:600}
+
+/* ---------- legend ---------- */
+.legend{
+  display:flex;flex-wrap:wrap;gap:10px 26px;padding:16px 20px;margin-bottom:52px;
+  background:var(--panel);border:1px solid var(--line);border-radius:3px}
+.legend div{display:flex;align-items:center;gap:9px;font-size:14px;color:var(--ink-2)}
+
+.tag{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:19px;height:19px;padding:0 5px;flex:none;
+  font-family:var(--f-mono);font-size:11px;font-weight:600;line-height:1;
+  border-radius:2px;border:1px solid}
+.tag-new{color:var(--post);border-color:var(--post)}
+.tag-fix{color:var(--caution);border-color:var(--caution)}
+.tag-none{border-color:transparent;color:transparent}
+.legend .tag-none{border-color:var(--line);color:var(--ink-3)}
+
+/* ---------- phase ---------- */
+.phase{margin-bottom:64px;--tone:var(--ink-3)}
+.phase-pre{--tone:var(--pre)}
+.phase-fly{--tone:var(--fly)}
+.phase-post{--tone:var(--post)}
+
+.phase-head{border-top:3px solid var(--tone);padding-top:18px;margin-bottom:8px}
+.phase-head .no{
+  font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--tone)}
+.phase-head h2{
+  font-family:var(--f-display);font-weight:700;font-size:clamp(30px,5vw,42px);
+  line-height:1.04;margin-top:6px;text-wrap:balance}
+.phase-head .aim{margin-top:8px;color:var(--ink-2);max-width:64ch}
+
+.group{margin-top:34px}
+.group > h3{
+  font-family:var(--f-display);font-weight:600;font-size:23px;letter-spacing:.01em;
+  padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+
+/* ---------- items ---------- */
+ul.items{list-style:none}
+.item{
+  display:grid;
+  grid-template-columns:auto minmax(0,15.5em) minmax(0,1fr) auto;
+  gap:0 16px;align-items:baseline;
+  padding:11px 4px;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+
+.box{
+  width:15px;height:15px;flex:none;align-self:center;
+  border:1.5px solid var(--ink-3);border-radius:2px;
+  background:transparent;cursor:pointer;position:relative;padding:0;
+  transition:border-color .12s, background .12s}
+.box:hover{border-color:var(--tone)}
+.box:focus-visible{outline:2px solid var(--tone);outline-offset:2px}
+.box[aria-checked="true"]{background:var(--tone);border-color:var(--tone)}
+.box[aria-checked="true"]::after{
+  content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
+  border:solid var(--panel);border-width:0 2px 2px 0;transform:rotate(42deg)}
+
+.c{
+  font-family:var(--f-mono);font-size:13px;font-weight:600;line-height:1.45;
+  color:var(--ink)}
+.r{color:var(--ink-2);font-size:15.5px;line-height:1.45}
+.item .tag{align-self:center}
+.item[data-done="1"] .c,.item[data-done="1"] .r{color:var(--ink-3)}
+.item[data-done="1"] .c{text-decoration:line-through;text-decoration-thickness:1px}
+
+/* ---------- ordered sequence ---------- */
+.seq .item{grid-template-columns:auto 1.9em minmax(0,9.5em) minmax(0,1fr) auto}
+.seq .n{
+  font-family:var(--f-mono);font-size:15px;font-weight:600;color:var(--tone);
+  font-variant-numeric:tabular-nums}
+
+/* ---------- gate ---------- */
+.gate{
+  margin-top:34px;padding:22px 24px;border:1px solid var(--line);
+  border-left:3px solid var(--tone);background:var(--panel);border-radius:3px;
+  box-shadow:var(--shadow)}
+.gate h3{
+  font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.02em;
+  text-transform:uppercase}
+.gate .why{margin-top:6px;color:var(--ink-2);font-size:15.5px}
+.gate .cols{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:20px}
+@media (max-width:660px){.gate .cols{grid-template-columns:1fr}}
+.gate h4{
+  font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.18em;
+  text-transform:uppercase;margin-bottom:10px}
+.gate .go h4{color:var(--post)}
+.gate .no h4{color:var(--danger)}
+.gate ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.gate li{font-size:15px;color:var(--ink-2);padding-left:16px;position:relative}
+.gate li::before{
+  content:"";position:absolute;left:0;top:.62em;width:6px;height:1.5px;background:currentColor;opacity:.55}
+
+/* ---------- callout ---------- */
+.note{
+  margin-top:20px;padding:15px 18px;background:var(--panel-2);
+  border-radius:3px;font-size:15px;color:var(--ink-2)}
+.note b{color:var(--ink);font-weight:600}
+.note code{font-family:var(--f-mono);font-size:13px;color:var(--ink)}
+
+/* ---------- review ---------- */
+.review{border-top:2px solid var(--ink);padding-top:34px;margin-top:24px}
+.review h2{
+  font-family:var(--f-display);font-weight:700;font-size:clamp(28px,5vw,38px);
+  line-height:1.05;text-wrap:balance}
+.review > p{margin-top:10px;color:var(--ink-2);max-width:66ch}
+.finding{
+  margin-top:26px;padding-left:18px;border-left:2px solid var(--line)}
+.finding.sev-hi{border-left-color:var(--danger)}
+.finding.sev-mid{border-left-color:var(--caution)}
+.finding h3{
+  font-family:var(--f-display);font-weight:600;font-size:21px;letter-spacing:.01em}
+.finding .verdict{
+  font-family:var(--f-mono);font-size:10.5px;font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:5px}
+.finding.sev-hi .verdict{color:var(--danger)}
+.finding.sev-mid .verdict{color:var(--caution)}
+.finding p{margin-top:7px;color:var(--ink-2);max-width:66ch}
+.finding code{
+  font-family:var(--f-mono);font-size:13.5px;color:var(--ink);
+  background:var(--panel-2);padding:1px 5px;border-radius:2px}
+
+.foot{
+  margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+  font-family:var(--f-mono);font-size:12px;color:var(--ink-3);
+  display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center}
+.reset{
+  font-family:var(--f-mono);font-size:12px;color:var(--ink-3);
+  background:none;border:1px solid var(--line);border-radius:2px;
+  padding:5px 11px;cursor:pointer}
+.reset:hover{color:var(--ink);border-color:var(--ink-3)}
+.reset:focus-visible{outline:2px solid var(--pre);outline-offset:2px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- paged output ---------- */
+@page{margin:14mm 12mm}
+.item,.note,.gate,.finding,.group > h3{break-inside:avoid}
+.group > h3,.phase-head{break-after:avoid}
+.phase{break-inside:auto}
+.review{break-before:page}
+@media print{
+  body{padding:0}
+  .reset{display:none}
+  .mast{padding-top:0}
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="kicker">Fly the Upgrade &middot; consolidated checklist</div>
+  <h1>Upgrade Flight Checklist</h1>
+  <p class="sub">Three phases, three gates. Challenge on the left, response on the right &mdash;
+     read it out and answer it honestly.</p>
+</header>
+
+<div class="lede">
+  <p>This merges your draft with the three checklists already in the deck (slides 23, 54 and 76),
+     the ordering slide (55) and the Go / No-Go gate (51). Where the two disagreed, the deck won and
+     the difference is explained at the bottom.</p>
+  <p>A checklist is not a to-do list. Every line is a question somebody answers out loud, and
+     <strong>&ldquo;no&rdquo; is a valid answer</strong> &mdash; as long as it is written down, with a reason
+     and a date. That is the difference between an accepted risk and a forgotten one.</p>
+</div>
+
+<div class="legend">
+  <div><span class="tag tag-none">&ndash;</span> unmarked &mdash; from your draft</div>
+  <div><span class="tag tag-new">+</span> added &mdash; missing from the draft</div>
+  <div><span class="tag tag-fix">!</span> moved or corrected</div>
+</div>
+
+<!-- ================= PHASE 1 ================= -->
+<section class="phase phase-pre">
+  <div class="phase-head">
+    <div class="no">Phase 1</div>
+    <h2>Dispatch &amp; Pre-Flight</h2>
+    <p class="aim">Nothing here touches the target version. The whole aim is to reach the runway
+       with a known aircraft, a read route and a working set of instruments.</p>
+  </div>
+
+  <div class="group">
+    <h3>The aircraft you have</h3>
+    <ul class="items">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Current version</span><span class="r">known, on its latest patch, documented</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Own extensions</span><span class="r">inventoried &mdash; and each one has a named owner</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Third-party extensions</span><span class="r">a target-version release exists, or a plan does</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Unowned extensions</span><span class="r">forked, replaced or dropped &mdash; decided now, not in flight</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Your changes to them</span><span class="r">Fluid overrides, FlexForm extensions, XCLASSes, hooks &mdash; listed</span><span class="tag tag-fix">!</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Platform</span><span class="r">PHP, database, web server, image processing &mdash; versions recorded</span><span class="tag tag-none">&nbsp;</span></li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>The route ahead</h3>
+    <ul class="items">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Target version</span><span class="r">decided, dated and justified against the support calendar</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Changelogs</span><span class="r">read and triaged &mdash; Breaking, Deprecation, Feature, Important</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Breaking changes</span><span class="r">the ones that touch your code, extracted into a work list</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">PHP baseline</span><span class="r">one version supported by both source and target &mdash; and live in production before departure</span><span class="tag tag-fix">!</span></li>
+    </ul>
+    <div class="note"><b>Why the baseline moves first.</b> If PHP and the core change in the same
+      step, every failure has two possible causes. Move production onto the overlap version while you
+      are still on the old core, and the flight has one variable instead of two.</div>
+  </div>
+
+  <div class="group">
+    <h3>Airworthy on the version you are on</h3>
+    <ul class="items">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Deprecations</span><span class="r">cleared on the current core, or on the MEL with a reason</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Extension Scanner</span><span class="r">run &mdash; strong matches at zero</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">TCA migrations</span><span class="r">checked in the backend module &mdash; the list is empty</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Rector &amp; Fractor</span><span class="r">clean against the current version&rsquo;s rule set</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Deprecation log</span><span class="r">switched on and read under real editor traffic</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">CI</span><span class="r">scanner and Rector wired in, so none of this can drift back</span><span class="tag tag-new">+</span></li>
+    </ul>
+    <div class="note"><b>Two of these have no command line.</b> The TCA migration check is a backend
+      module only. And the Extension Scanner has no rule for some deprecations at all &mdash;
+      <code>QueryBuilder-&gt;execute()</code> is invisible to it. Rector finds that one. Neither tool
+      alone is the answer.</div>
+  </div>
+
+  <div class="group">
+    <h3>Instruments</h3>
+    <ul class="items">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">A test suite exists</span><span class="r">it runs, and it executes the code that touches the core</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Coverage</span><span class="r">aimed at core contact points, not at a percentage</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Baseline recorded</span><span class="r">the suite&rsquo;s current result is known and understood</span><span class="tag tag-new">+</span></li>
+    </ul>
+    <div class="note"><b>This is the one your draft was missing entirely.</b> Phase 2 says
+      &ldquo;run the toolchain until it is green&rdquo; &mdash; which quietly assumes a suite that only
+      Phase 1 can build. Every line your tests execute is a line the core can warn you about; every
+      line they do not is a line you will meet in production.</div>
+  </div>
+
+  <div class="group">
+    <h3>Crew and contingency</h3>
+    <ul class="items">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Briefing</span><span class="r">written &mdash; what changes, what to expect, who does what</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">QRH</span><span class="r">the failures you expect, each with its prepared answer</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">MEL</span><span class="r">what you accept as broken &mdash; reason and rectification date each</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Backup and restore</span><span class="r">rehearsed, not assumed</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Rollback criteria</span><span class="r">written down before departure, not invented during it</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Window and people</span><span class="r">long enough for the plan plus surprises, with the right people present</span><span class="tag tag-new">+</span></li>
+    </ul>
+  </div>
+
+  <div class="gate">
+    <h3>Gate &mdash; Go / No-Go</h3>
+    <p class="why">Phase 1 ends in a decision, not in a feeling. No-Go is a professional outcome:
+       delaying a flight costs money, and the alternative costs more.</p>
+    <div class="cols">
+      <div class="go">
+        <h4>Go</h4>
+        <ul>
+          <li>Strong matches at zero, or on the MEL with a date</li>
+          <li>Every third-party extension resolved</li>
+          <li>A backup restored successfully at least once</li>
+          <li>Rollback criteria written and understood by everyone</li>
+          <li>The window fits the plan plus surprises</li>
+        </ul>
+      </div>
+      <div class="no">
+        <h4>No-Go</h4>
+        <ul>
+          <li>&ldquo;We will find out during the upgrade&rdquo;</li>
+          <li>An unowned extension nobody can update</li>
+          <li>A backup that has never been restored</li>
+          <li>A window that fits only the happy path</li>
+          <li>The person who knows the system is on holiday</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PHASE 2 ================= -->
+<section class="phase phase-fly">
+  <div class="phase-head">
+    <div class="no">Phase 2</div>
+    <h2>Take-Off &amp; Cruise</h2>
+    <p class="aim">Here the order is not a preference. Do these in sequence, or do several of them
+       twice.</p>
+  </div>
+
+  <div class="group">
+    <h3>Before the roll</h3>
+    <ul class="items">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Freeze announced</span><span class="r">content, code and deploys &mdash; everyone knows</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Backup taken</span><span class="r">database and files, verified &mdash; not just triggered</span><span class="tag tag-new">+</span></li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>The sequence</h3>
+    <ul class="items seq">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="n">1</span><span class="c">Branch</span><span class="r">everything after this point is reversible</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="n">2</span><span class="c">Platform</span><span class="r">PHP version, composer platform config, extension constraints</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="n">3</span><span class="c">Packages</span><span class="r">core, extensions and tooling raised in one transaction</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="n">4</span><span class="c">Rector</span><span class="r">after the packages &mdash; reviewed hunk by hunk</span><span class="tag tag-fix">!</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="n">5</span><span class="c">Fractor</span><span class="r">after the packages &mdash; TypoScript, Fluid, YAML, the half Rector never sees</span><span class="tag tag-fix">!</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="n">6</span><span class="c">Scan</span><span class="r">Extension Scanner <em>and</em> the TCA check, both now carrying target rules</span><span class="tag tag-fix">!</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="n">7</span><span class="c">Schema</span><span class="r">extension setup and the database compare &mdash; the point of no return</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="n">8</span><span class="c">Wizards</span><span class="r">list them, run them, then verify what each one actually did</span><span class="tag tag-fix">!</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="n">9</span><span class="c">Caches</span><span class="r">flush, warm, and only then look at the site</span><span class="tag tag-new">+</span></li>
+    </ul>
+    <div class="note"><b>Your draft ran the wizards third.</b> They belong at eight. A wizard migrates
+      data against the new schema, and the schema can only be built once the new code is on disk.
+      Run them early and you migrate data into a shape the core has not created yet. The same trap
+      catches Rector: run it before step 3 and it refactors against the old rule set.</div>
+  </div>
+
+  <div class="group">
+    <h3>Working the failures</h3>
+    <ul class="items">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">One at a time</span><span class="r">red tests worked in order, not in parallel panic</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Generated code read</span><span class="r">anything Rector scaffolded is reviewed before it is trusted</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Third-party gaps</span><span class="r">closed by update, patch, fork or replacement</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Your overrides</span><span class="r">Fluid templates and FlexForms re-based onto the new originals</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">New deprecations</span><span class="r">target-version warnings cleaned as they appear, not deferred</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Two kinds of error</span><span class="r">separated &mdash; broken <em>by</em> the upgrade, or broken already</span><span class="tag tag-new">+</span></li>
+    </ul>
+    <div class="note"><b>Rector is a co-pilot, not an autopilot.</b> In the demo project it migrated
+      the plugin registration correctly and scaffolded an upgrade wizard containing
+      <code>// TODO: Add this mapping yourself!</code> &mdash; which, left as written, silently orphans
+      every existing content record. Nothing failed. No scan complained. Only the test that renders
+      the plugin in the frontend noticed.</div>
+  </div>
+
+  <div class="group">
+    <h3>Cockpit discipline</h3>
+    <ul class="items">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Sterile cockpit</span><span class="r">no unrelated refactoring in this branch</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">One tool, one commit</span><span class="r">so the diff stays reviewable by somebody else</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Go-around criteria</span><span class="r">when to stop and reset &mdash; agreed in advance</span><span class="tag tag-new">+</span></li>
+    </ul>
+  </div>
+
+  <div class="gate">
+    <h3>Gate &mdash; cleared to hand over</h3>
+    <p class="why">Green tooling is necessary and not sufficient. A human still has to use the thing.</p>
+    <div class="cols">
+      <div class="go">
+        <h4>Cleared</h4>
+        <ul>
+          <li>CGL, static analysis, unit and functional suites all green</li>
+          <li>Frontend and backend smoke-tested by a person</li>
+          <li>Deployed to staging on production-like data</li>
+          <li>Remaining scanner findings recorded and accepted</li>
+        </ul>
+      </div>
+      <div class="no">
+        <h4>Not yet</h4>
+        <ul>
+          <li>Tests green because they were skipped or weakened</li>
+          <li>Generated wizards nobody has read</li>
+          <li>&ldquo;It works locally&rdquo;</li>
+          <li>Editors have not touched it</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PHASE 3 ================= -->
+<section class="phase phase-post">
+  <div class="phase-head">
+    <div class="no">Phase 3</div>
+    <h2>Approach, Landing &amp; Debrief</h2>
+    <p class="aim">Green again is not the end of the work. It is the end of the flight &mdash; and the
+       start of the preparation for the next one.</p>
+  </div>
+
+  <div class="group">
+    <h3>Straight after landing</h3>
+    <ul class="items">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Frontend</span><span class="r">smoke-tested by a human, not by a status code</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Backend</span><span class="r">editors can do their actual daily work</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Scheduler</span><span class="r">tasks registered, running, and finishing</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Logs</span><span class="r">error rates watched for the first days, not the first hour</span><span class="tag tag-new">+</span></li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>Sweep again, with the new rules</h3>
+    <ul class="items">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Extension Scanner</span><span class="r">re-run &mdash; it now warns about the version after this one</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">TCA migrations</span><span class="r">re-checked &mdash; the list changes with the new core</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Deprecation log</span><span class="r">enabled on the new version and read under real traffic</span><span class="tag tag-fix">!</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">What static analysis missed</span><span class="r">collected from the log and turned into work items</span><span class="tag tag-none">&nbsp;</span></li>
+    </ul>
+    <div class="note"><b>The log catches what the scanners structurally cannot.</b> String class
+      names, variable method calls and <code>$GLOBALS</code> juggling are invisible to static
+      analysis. They are perfectly visible to a running site with real editors on it.</div>
+  </div>
+
+  <div class="group">
+    <h3>Remove the ferry equipment</h3>
+    <ul class="items">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Shims and polyfills</span><span class="r">the ones added &ldquo;just for the migration&rdquo;, now gone</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Upgrade-only packages</span><span class="r">removed, or moved into an isolated tools install</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Resolved markers</span><span class="r">the todo comments you actually fixed &mdash; deleted, not left to rot</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Constraints</span><span class="r">re-pinned to the new reality in your own extensions</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">CI</span><span class="r">moved to the new core; rule sets raised to the <em>next</em> target</span><span class="tag tag-new">+</span></li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>Record it while you still remember</h3>
+    <ul class="items">
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">New features</span><span class="r">triaged &mdash; adopt now, schedule, or decline with a reason</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Upgrade report</span><span class="r">predicted versus actual, and what took longest</span><span class="tag tag-none">&nbsp;</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Documentation</span><span class="r">updated now, not &ldquo;when things calm down&rdquo;</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">This checklist</span><span class="r">surprises become new lines; unused lines get deleted</span><span class="tag tag-new">+</span></li>
+      <li class="item"><button class="box" role="checkbox" aria-checked="false" aria-label="tick"></button>
+        <span class="c">Maintenance plan</span><span class="r">the next flight dated from the support calendar</span><span class="tag tag-none">&nbsp;</span></li>
+    </ul>
+    <div class="note"><b>And then Phase 3 becomes Phase 1.</b> Recording the new deprecations is not
+      the end of this upgrade &mdash; it is the preparation for the next one. Teams for whom upgrades
+      are painless are not luckier. They simply never left Phase 3.</div>
+  </div>
+</section>
+
+<!-- ================= REVIEW ================= -->
+<section class="review">
+  <h2>What changed in your draft, and why</h2>
+  <p>The three phases were right and the aviation framing held up throughout. Four things were
+     genuinely wrong or missing; the rest was sharpening.</p>
+
+  <div class="finding sev-hi">
+    <h3>The upgrade wizards were in the wrong place</h3>
+    <span class="verdict">Corrected &mdash; sequence</span>
+    <p>Your Phase 2 ran wizards before Rector, Fractor and the scanner. A wizard migrates data
+       against the new database schema, so it has to come <em>after</em> the schema is built, which
+       in turn needs the new code on disk. Wizards moved to step 8, behind the schema update at
+       step 7. Rector and Fractor sit at 4 and 5 for the mirror-image reason: run either before the
+       packages move and it refactors your code against the rule set you are leaving.</p>
+  </div>
+
+  <div class="finding sev-hi">
+    <h3>Phase 1 had no instruments</h3>
+    <span class="verdict">Added &mdash; missing prerequisite</span>
+    <p>Phase 2 said &ldquo;check the toolchain until it passes green&rdquo;, but nothing in Phase 1
+       established that a test suite exists or that it touches the core. That is the assumption the
+       whole flight rests on: the tests are what convert an invisible behaviour change into a red
+       line you can act on. Added as its own group, including the point that coverage should be
+       aimed at core contact points rather than at a number.</p>
+  </div>
+
+  <div class="finding sev-mid">
+    <h3>The schema step was missing entirely</h3>
+    <span class="verdict">Added &mdash; step 7</span>
+    <p>Between the tooling and the wizards sits the database compare. It is also the one step that
+       is genuinely hard to walk back, which is worth naming out loud on a checklist that otherwise
+       promises reversibility.</p>
+  </div>
+
+  <div class="finding sev-mid">
+    <h3>No TCA migration check anywhere</h3>
+    <span class="verdict">Added &mdash; Phases 1, 2 and 3</span>
+    <p>The core silently migrates outdated TCA on every request and tells you only in a backend
+       module. There is no CLI command for it, so it is easy to leave out of exactly this kind of
+       list &mdash; and the message list is not stable across versions, which is why it appears in
+       all three phases rather than once.</p>
+  </div>
+
+  <div class="finding">
+    <h3>The PHP baseline needed one more word</h3>
+    <span class="verdict">Sharpened</span>
+    <p>&ldquo;One baseline throughout&rdquo; was the right instinct. Made explicit: pick the version
+       supported by <em>both</em> the source and target core, and get production onto it
+       <em>before</em> departure. Then the flight changes one variable instead of two, and every
+       failure has one candidate cause.</p>
+  </div>
+
+  <div class="finding">
+    <h3>Nothing decided whether to fly</h3>
+    <span class="verdict">Added &mdash; three gates</span>
+    <p>The draft flowed from phase to phase without a decision point. Each phase now ends in an
+       explicit gate, and Phase 1&rsquo;s is a real Go / No-Go with No-Go criteria written before
+       anyone is under pressure. Backup-and-restore, rollback criteria and the MEL were added for the
+       same reason &mdash; they are what a gate actually checks.</p>
+  </div>
+
+  <div class="finding">
+    <h3>Smaller additions</h3>
+    <span class="verdict">Added</span>
+    <p>Freeze announcement and a verified backup before the roll; cache flush after the wizards;
+       scheduler tasks and log watching after landing; removing the ferry equipment; re-pinning
+       constraints and raising the rule sets to the <em>next</em> target so Phase 3 feeds Phase 1.
+       Your item about adapting third-party extensions you had extended moved to Phase 1 as
+       discovery &mdash; you want that list before departure, not while a test is red.</p>
+  </div>
+</section>
+
+<div class="foot">
+  <span>Fly the Upgrade &mdash; Stefan B&uuml;rk</span>
+  <span>Ticks are stored in this browser only</span>
+  <button class="reset" type="button" id="reset">Clear all ticks</button>
+</div>
+
+</div>
+
+<script>
+(function(){
+  var KEY='fly-the-upgrade-checklist-v1';
+  var boxes=[].slice.call(document.querySelectorAll('.box'));
+  var state={};
+  try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+
+  function paint(b,i){
+    var on=state[i]===1;
+    b.setAttribute('aria-checked',on?'true':'false');
+    b.closest('.item').setAttribute('data-done',on?'1':'0');
+  }
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){} }
+
+  boxes.forEach(function(b,i){
+    paint(b,i);
+    b.addEventListener('click',function(){
+      state[i]=state[i]===1?0:1; paint(b,i); save();
+    });
+    b.addEventListener('keydown',function(e){
+      if(e.key===' '||e.key==='Enter'){ e.preventDefault(); b.click(); }
+    });
+  });
+
+  document.getElementById('reset').addEventListener('click',function(){
+    state={}; boxes.forEach(paint); save();
+  });
+})();
+</script>
