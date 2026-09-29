@@ -234,17 +234,33 @@ FlashMessage::WARNING` (FlightBoardTest).
 
 ## Lab 09
 
-1. `database:updateschema` does not exist in 12.4 — `extension:setup` applies the
-   schema there. Command surfaces change between majors, so an upgrade script
-   written for the old version does not necessarily run on the new one. Check
-   your deployment scripts as part of the upgrade, not after it.
-2. `webvisionFlightOpsCTypeMigration` — your own wizard from Lab 07. It rewrites
+1. It is not a core command, on no version. `database:updateschema` comes from
+   TYPO3 Console (`helhum/typo3-console`): since Console 8.0 as
+   `typo3 database:updateschema`, before that through its own binary as
+   `typo3cms database:updateschema`. The core's schema step on the command line
+   is `extension:setup`, the same command as in Lab 00, on 12.4 and on 13.4. The
+   13.4.x changelog entry `Important-110454` still names the Console command.
+   So a deployment script calls what is installed, not what a changelog, a blog
+   post or a colleague names. Check it against `typo3 list` of the target
+   version, as part of the upgrade.
+2. `extension:setup` only executes the safe statements: tables and fields are
+   created and altered, nothing is dropped or renamed. Removals happen in
+   *Admin Tools › Maintenance › Analyze Database Structure* (or with TYPO3
+   Console's destructive update types). Do them later, once the new version runs
+   in production and a rollback to the old code is off the table. The old code
+   may still need those fields.
+3. `webvisionFlightOpsCTypeMigration`, your own wizard from Lab 07. It rewrites
    `tt_content` rows from `list_type` to the new `CType` and fixes backend user
    permissions. That is the production counterpart of the fixture edit in Lab 08.
-3. The rest only appear when they have data to migrate. This instance is nearly
+   If it is missing from the list, flush the caches: the service container was
+   built before the class existed.
+4. The rest only appear when they have data to migrate. This instance is nearly
    empty, so most report nothing. On a copy of production data the list is
-   longer — which is why you rehearse there.
-3. The schema change. Before it: a branch and a lock file. After it: a restore.
+   longer, which is why you rehearse there.
+5. The schema update together with the wizards. `extension:setup` only adds and
+   alters, so the old code often still runs against the new tables, but an
+   altered column and a wizard that rewrote records cannot be undone. Before
+   them: a branch and a lock file. After them: a restore.
 
 ---
 

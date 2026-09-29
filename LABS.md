@@ -291,10 +291,14 @@ roughly this sequence — track your own numbers as you go:
 
 **Phase: Flight  ·  ~20 min**
 
+Schema first, wizards second: a wizard migrates data into tables and fields
+that only exist once the schema has been updated.
+
 ```bash
+ddev exec ./vendor/bin/typo3 extension:setup   # schema: creates and alters, never drops
+ddev exec ./vendor/bin/typo3 cache:flush       # makes new classes visible, like your Lab 07 wizard
 ./Build/Scripts/runTests.sh -s upgradeList
 ddev exec ./vendor/bin/typo3 upgrade:run
-ddev exec ./vendor/bin/typo3 database:updateschema   # note: v13 has this command
 ddev exec ./vendor/bin/typo3 cache:flush
 ```
 
@@ -302,12 +306,16 @@ Then open the backend and the frontend and actually look at them.
 
 ### Questions
 
-1. `database:updateschema` did not exist in 12.4. What did you use instead in
-   Lab 00, and what does that tell you about scripting an upgrade?
-2. Open *Upgrade Wizard* in the backend. Your own wizard from Lab 07 should be
+1. Look for a `database:updateschema` command: `ddev exec ./vendor/bin/typo3 list`.
+   There is none, not on 12.4 and not on 13.4, although a 13.4 changelog entry
+   in the core tells you to run it. Where does it come from, and what does that
+   tell you about scripting an upgrade?
+2. `extension:setup` never drops or renames a table or a field. Where do you do
+   that, and why not in the same step?
+3. Open *Upgrade Wizard* in the backend. Your own wizard from Lab 07 should be
    in the list now. Run it. What did it change in the database?
-3. Why is the rest of the list shorter than you expected on this instance?
-4. Which of these steps is your V1 — the point after which "undo" means
+4. Why is the rest of the list shorter than you expected on this instance?
+5. Which of these steps is your V1 — the point after which "undo" means
    "restore the backup"?
 
 ---
